@@ -41,7 +41,7 @@
 @:<div class="container">
     @:<main role="main" class="pb-3">
 
-        @:<h2>Manage Activity Groups</h2>
+        @:<h2>Manage @Model.ViewDataTypeShortName</h2>
 
         @:<div>
             @:<hr>
@@ -137,19 +137,8 @@
     @:</main>
 @:</div>
 
-
-@:<div class="row">
-    @:<div class="col-md-4">
-        @:<form asp-action="@Model.ViewName">
-            @:<div asp-validation-summary="ModelOnly" class="text-danger"></div>
-        
-    }
-            <div class="form-group">
-                
-            </div>
-        </form>
-    </div>
-</div>
+}
+            
 
 @{
     if (Model.ReferenceScriptLibraries)
