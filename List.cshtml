@@ -44,81 +44,83 @@
         @:<div>
             @:<hr>
             @:<div class="row">
-                @:<div class="col-md-3">
+                @:<div class="col-md-3 mb-2">
                     @:<ul class="nav nav-pills flex-column">
                         @:<li class="nav-item"><a class="nav-link" asp-action="Create">Create New</a></li>
                         @:<li class="nav-item"><a class="nav-link active" href="#">List</a></li>
                     @:</ul>
                 @:</div>
                 @:<div class="col-md-9">
-                    @:<table class="table table-bordered table-striped">
-                        @:<thead>
-                            @:<tr>
-                            Dictionary<string, IPropertyMetadata> propertyLookup = ((IModelMetadata)Model.ModelMetadata).Properties.ToDictionary(x => x.PropertyName, x => x);
-                            Dictionary<string, INavigationMetadata> navigationLookup = ((IModelMetadata)Model.ModelMetadata).Navigations.ToDictionary(x => x.AssociationPropertyName, x => x);
+                   @:<div class="table-responsive">
+                        @:<table class="table table-bordered table-striped">
+                            @:<thead>
+                                @:<tr>
+                                Dictionary<string, IPropertyMetadata> propertyLookup = ((IModelMetadata)Model.ModelMetadata).Properties.ToDictionary(x => x.PropertyName, x => x);
+                                Dictionary<string, INavigationMetadata> navigationLookup = ((IModelMetadata)Model.ModelMetadata).Navigations.ToDictionary(x => x.AssociationPropertyName, x => x);
 
-                            foreach (var item in Model.ModelMetadata.ModelType.GetProperties())
-                            {
-                                if (propertyLookup.TryGetValue(item.Name, out IPropertyMetadata property)
-                                    && property.Scaffold && !property.IsForeignKey && !property.IsPrimaryKey)
+                                foreach (var item in Model.ModelMetadata.ModelType.GetProperties())
                                 {
-                                <th>
-                                    @@Html.DisplayNameFor(model => model.@GetValueExpression(property))
-                                </th>
+                                    if (propertyLookup.TryGetValue(item.Name, out IPropertyMetadata property)
+                                        && property.Scaffold && !property.IsForeignKey && !property.IsPrimaryKey)
+                                    {
+                                    <th>
+                                        @@Html.DisplayNameFor(model => model.@GetValueExpression(property))
+                                    </th>
+                                    }
+                                    else if (navigationLookup.TryGetValue(item.Name, out INavigationMetadata navigation))
+                                    {
+                                    <th>
+                                        @@Html.DisplayNameFor(model => model.@GetValueExpression(navigation))
+                                    </th>
+                                    }
                                 }
-                                else if (navigationLookup.TryGetValue(item.Name, out INavigationMetadata navigation))
+                                    @:<th>Action</th>
+                                @:</tr>
+                            @:</thead>
+                            @:<tbody>
+                        @:@@foreach (var item in Model) {
+                                @:<tr>
+                                foreach (var item in Model.ModelMetadata.ModelType.GetProperties())
                                 {
-                                <th>
-                                    @@Html.DisplayNameFor(model => model.@GetValueExpression(navigation))
-                                </th>
+                                    if (propertyLookup.TryGetValue(item.Name, out IPropertyMetadata property)
+                                        && property.Scaffold && !property.IsForeignKey && !property.IsPrimaryKey)
+                                    {
+                                    <td>
+                                        @@Html.DisplayFor(modelItem => item.@GetValueExpression(property))
+                                    </td>
+                                    }
+                                    else if (navigationLookup.TryGetValue(item.Name, out INavigationMetadata navigation))
+                                    {
+                                    <td>
+                                        @@Html.DisplayFor(modelItem => item.@GetValueExpression(navigation).@navigation.DisplayPropertyName)
+                                    </td>
+                                    }
                                 }
-                            }
-                                @:<th>Action</th>
-                            @:</tr>
-                        @:</thead>
-                        @:<tbody>
-                    @:@@foreach (var item in Model) {
-                            @:<tr>
-                            foreach (var item in Model.ModelMetadata.ModelType.GetProperties())
-                            {
-                                if (propertyLookup.TryGetValue(item.Name, out IPropertyMetadata property)
-                                    && property.Scaffold && !property.IsForeignKey && !property.IsPrimaryKey)
+                                string pkName = GetPrimaryKeyName();
+                                if (pkName != null)
                                 {
-                                <td>
-                                    @@Html.DisplayFor(modelItem => item.@GetValueExpression(property))
-                                </td>
+                                    @:<td>
+                                        @:<div class="btn-group" role="group">
+                                            @:<a role="button" class="btn btn-primary btn-sm" asp-action="Edit" asp-route-id="@@item.@pkName">Edit</a> 
+                                            @:<a role="button" class="btn btn-secondary btn-sm" asp-action="Details" asp-route-id="@@item.@pkName">Details</a>
+                                            @:<a role="button" class="btn btn-danger btn-sm" asp-action="Delete" asp-route-id="@@item.@pkName">Delete</a>
+                                        @:</div>
+                                    @:</td>
                                 }
-                                else if (navigationLookup.TryGetValue(item.Name, out INavigationMetadata navigation))
+                                else
                                 {
-                                <td>
-                                    @@Html.DisplayFor(modelItem => item.@GetValueExpression(navigation).@navigation.DisplayPropertyName)
-                                </td>
+                                    <td>
+                                        @@Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
+                                        @@Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
+                                        @@Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+                                    </td>
                                 }
-                            }
-                            string pkName = GetPrimaryKeyName();
-                            if (pkName != null)
-                            {
-                                @:<td>
-                                    @:<div class="btn-group" role="group">
-                                        @:<a role="button" class="btn btn-primary btn-sm" asp-action="Edit" asp-route-id="@@item.@pkName">Edit</a> 
-                                        @:<a role="button" class="btn btn-secondary btn-sm" asp-action="Details" asp-route-id="@@item.@pkName">Details</a>
-                                        @:<a role="button" class="btn btn-danger btn-sm" asp-action="Delete" asp-route-id="@@item.@pkName">Delete</a>
-                                    @:</div>
-                                @:</td>
-                            }
-                            else
-                            {
-                                <td>
-                                    @@Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-                                    @@Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-                                    @@Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
-                                </td>
-                            }
-                            @:</tr>
-                    @:}
-                        @:</tbody>
+                                @:</tr>
+                        @:}
+                            @:</tbody>
 
-                    @:</table>
+                        @:</table>
+                    @:</div>
                 @:</div>
             @:</div>
         @:</div>
